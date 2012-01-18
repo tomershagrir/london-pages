@@ -6,6 +6,7 @@ class ModulePage(admin.CrudModule):
     model = Page
     list_display = ('slug', 'last_update', 'name', 'text')
     readonly_fields = ('last_update', 'text')
+    exclude = ('text',)
 
 class AppBlog(admin.AdminApplication):
     title = 'Page'

@@ -6,15 +6,27 @@ from london.urls import reverse
 
 from datetime import datetime
 
-import markdown2
+try:
+    import markdown2
+except ImportError:
+    markdown2 = None
 
 class Page(models.Model):
+    RENDER_TYPE_RAW = 'raw'
+    RENDER_TYPE_MARKDOWN = 'markdown'
+    RENDER_TYPE_CHOICES = (
+            (RENDER_TYPE_RAW, 'Raw HTML'),
+            (RENDER_TYPE_MARKDOWN, 'Markdown'),
+            )
+
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, blank=False, null=False)
     text = models.TextField()
     source = models.TextField()
     last_update = models.DateTimeField(blank=False, null=False)
     site = models.ForeignKey(Site, related_name='pages')
+    template_name = models.CharField(max_length=100, blank=True)
+    markup = models.CharField(max_length=20, blank=True, choices=RENDER_TYPE_CHOICES, default=RENDER_TYPE_RAW)
  
     def __unicode__(self):
         return self['name']
@@ -28,8 +40,10 @@ class Page(models.Model):
         self['last_update'] = datetime.now()
 
         source = self.get('source',  None)
-        if source is not None:
-            self['text'] = markdown2.markdown(source)
+        if self['markup'] == self.RENDER_TYPE_MARKDOWN:
+            self['text'] = markdown2.markdown(source or '')
+        else:
+            self['text'] = source or ''
         return super(Page, self).save(**kwargs)
 
     def get_url(self):
