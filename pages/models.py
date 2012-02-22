@@ -11,7 +11,16 @@ try:
 except ImportError:
     markdown2 = None
 
+
+class PageQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(is_published=True)
+
+
 class Page(models.Model):
+    class Meta:
+        query = 'pages.models.PageQuerySet'
+
     RENDER_TYPE_RAW = 'raw'
     RENDER_TYPE_MARKDOWN = 'markdown'
     RENDER_TYPE_CHOICES = (
@@ -27,6 +36,8 @@ class Page(models.Model):
     site = models.ForeignKey(Site, related_name='pages')
     template_name = models.CharField(max_length=100, blank=True)
     markup = models.CharField(max_length=20, blank=True, choices=RENDER_TYPE_CHOICES, default=RENDER_TYPE_RAW)
+    keywords = models.ListField(null=True, blank=True)
+    is_published = models.BooleanField(default=True, db_index=True, blank=True)
  
     def __unicode__(self):
         return self['name']
@@ -45,6 +56,9 @@ class Page(models.Model):
         else:
             self['text'] = source or ''
         return super(Page, self).save(**kwargs)
+
+    def get_title(self):
+        return self['name']
 
     def get_url(self):
         return reverse("page_view", kwargs={'slug': self['slug']})

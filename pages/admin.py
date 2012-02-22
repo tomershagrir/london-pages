@@ -5,7 +5,7 @@ from forms import PageForm
 
 class ModulePage(admin.CrudModule):
     model = Page
-    list_display = ('slug', 'last_update', 'name', 'text')
+    list_display = ('slug', 'last_update', 'name')
     readonly_fields = ('last_update', 'text')
     exclude = ('text',)
     form = PageForm
