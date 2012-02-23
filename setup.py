@@ -18,5 +18,6 @@ setup(
     author="Bruno Gola",
     license="BSD License",
     packages=packages,
+    install_requires=['markdown2'],
     )
 
