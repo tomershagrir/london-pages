@@ -7,6 +7,7 @@ __author__ = 'jpablo'
 
 
 class PageForm(forms.ModelForm):
+
     class Meta:
         model = Page
         exclude = ('text',)
@@ -37,4 +38,10 @@ class PageForm(forms.ModelForm):
         obj = super(PageForm, self).save(commit, force_new)
         signals.page_form_post_save.send(sender=self, instance=obj)
         return obj
+
+    def default_context(self):
+        return {
+            'object_verbose_name': self._meta.model._meta.verbose_name,
+            'object_verbose_name_plural': self._meta.model._meta.verbose_name_plural
+        }
 
