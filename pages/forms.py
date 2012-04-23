@@ -1,10 +1,11 @@
 from london import forms
 from pages.models import Page
-from pages import signals
+from pages import signals 
+from images import add_image_field_to_sender_form
+
+signals.page_form_initialize.connect(add_image_field_to_sender_form)
 
 __author__ = 'jpablo'
-
-
 
 class PageForm(forms.ModelForm):
 
