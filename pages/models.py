@@ -16,6 +16,12 @@ class PageQuerySet(models.QuerySet):
     def published(self):
         return self.filter(is_published=True)
 
+    def home(self, field='slug'):
+        try:
+            return self.filter(is_home=True).get()[field]
+        except:
+            return None
+
 
 class Page(models.Model):
     class Meta:
@@ -38,7 +44,8 @@ class Page(models.Model):
     markup = models.CharField(max_length=20, blank=True, choices=RENDER_TYPE_CHOICES, default=RENDER_TYPE_RAW)
     keywords = models.ListField(null=True, blank=True)
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
- 
+    is_home = models.BooleanField(default=False, blank=True)
+
     def __unicode__(self):
         return self['name']
 
@@ -61,6 +68,8 @@ class Page(models.Model):
         return self['name']
 
     def get_url(self):
+        if self['is_home']:
+            return reverse("page_view_home")
         return reverse("page_view", kwargs={'slug': self['slug']})
 
     def get_content(self):
