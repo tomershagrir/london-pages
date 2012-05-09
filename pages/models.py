@@ -38,7 +38,8 @@ class Page(models.Model):
     markup = models.CharField(max_length=20, blank=True, choices=RENDER_TYPE_CHOICES, default=RENDER_TYPE_RAW)
     keywords = models.ListField(null=True, blank=True)
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
- 
+    is_home = models.BooleanField(default=False, blank=True)
+
     def __unicode__(self):
         return self['name']
 
