@@ -68,6 +68,8 @@ class Page(models.Model):
         return self['name']
 
     def get_url(self):
+        if self['is_home']:
+            return reverse("page_view_home")
         return reverse("page_view", kwargs={'slug': self['slug']})
 
     def get_content(self):
