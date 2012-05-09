@@ -18,6 +18,7 @@ class PageForm(BaseModuleForm):
 
     def initialize(self):
         self.fields['keywords'].widget = forms.ListByCommasTextInput()
+        self.fields['slug'].required = False
         signals.page_form_initialize.send(sender=self)
 
     def clean(self):
