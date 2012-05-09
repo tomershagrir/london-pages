@@ -37,11 +37,11 @@ class PageForm(BaseModuleForm):
 
         if cleaned_data['is_home']:
             try:
-                home_slug = all_pages.home()
-                home_slug = (home_slug, cleaned_data['slug'])[home_slug is None]
+                home = all_pages.home('name')
+                home = (home, cleaned_data['name'])[home is None]
             except:
-                home_slug = None
-            if cleaned_data['slug'] != home_slug:
+                home = None
+            if cleaned_data['name'] != home:
                 raise forms.ValidationError('Page "%s" is already marked as home.' % cleaned_data['name'],
                         field_name='is_home')
 
