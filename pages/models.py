@@ -16,9 +16,9 @@ class PageQuerySet(models.QuerySet):
     def published(self):
         return self.filter(is_published=True)
 
-    def home(self):
+    def home(self, field='slug'):
         try:
-            return self.filter(is_home=True).get()['slug']
+            return self.filter(is_home=True).get()[field]
         except:
             return None
 
