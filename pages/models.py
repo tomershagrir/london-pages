@@ -16,6 +16,12 @@ class PageQuerySet(models.QuerySet):
     def published(self):
         return self.filter(is_published=True)
 
+    def home(self):
+        try:
+            return self.filter(is_home=True).get()['slug']
+        except:
+            return None
+
 
 class Page(models.Model):
     class Meta:
