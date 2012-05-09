@@ -35,7 +35,7 @@ class Page(models.Model):
             )
 
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, blank=False, null=False)
+    slug = models.SlugField(max_length=255, blank=True, null=False)
     text = models.TextField()
     source = models.TextField()
     last_update = models.DateTimeField(blank=False, null=False)
