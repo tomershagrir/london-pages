@@ -24,9 +24,11 @@ class PageQuerySet(models.QuerySet):
 
 
 class Page(models.Model):
+
     class Meta:
         query = 'pages.models.PageQuerySet'
         ordering = ('position', )
+
     RENDER_TYPE_RAW = 'raw'
     RENDER_TYPE_MARKDOWN = 'markdown'
     RENDER_TYPE_CHOICES = (
@@ -36,7 +38,8 @@ class Page(models.Model):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, blank=True, null=False)
-    position = models.SmallIntegerField(blank=True, null=False, help_text='Menu position (for ranking of menu items)')
+    position = models.SmallIntegerField(blank=True, null=False,
+            help_text='Menu position (for ranking of menu items)')
     text = models.TextField()
     source = models.TextField()
     last_update = models.DateTimeField(blank=False, null=False)
