@@ -38,6 +38,7 @@ class Page(models.Model):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, blank=True, null=False)
+    title = models.CharField(max_length=255)
     position = models.SmallIntegerField(blank=True, null=False,
             help_text='Menu position (for ranking of menu items)')
     text = models.TextField()
@@ -68,8 +69,11 @@ class Page(models.Model):
             self['text'] = source or ''
         return super(Page, self).save(**kwargs)
 
-    def get_title(self):
+    def get_name(self):
         return self['name']
+
+    def get_title(self):
+        return self['title']
 
     def get_url(self):
         if self['is_home']:
