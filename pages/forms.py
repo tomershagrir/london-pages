@@ -1,27 +1,31 @@
 from london import forms
 from pages.models import Page
 from pages import signals 
-from images import add_image_field_to_sender_form
-
-signals.page_form_initialize.connect(add_image_field_to_sender_form)
+from london.apps.admin.modules import BaseModuleForm
 
 __author__ = 'jpablo'
 
-class PageForm(forms.ModelForm):
+class PageForm(BaseModuleForm):
 
     class Meta:
         model = Page
         exclude = ('text',)
         readonly = ('last_update', 'text')
+        
+    def get_initial(self, initial=None):
+        initial = initial or super(PageForm, self).get_initial(initial)
+        signals.page_form_initialize.send(sender=self, initial=initial)
+        return initial
 
     def initialize(self):
         self.fields['keywords'].widget = forms.ListByCommasTextInput()
-        signals.page_form_initialize.send(sender=self)
+        self.fields['slug'].required = False
 
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
         slug = cleaned_data['slug']
-        pages = cleaned_data['site']['pages'].filter(slug=slug)
+        all_pages = cleaned_data['site']['pages']
+        pages = all_pages.filter(slug=slug)
 
         # Validation excludes current page
         if self.instance['pk']:
@@ -29,7 +33,18 @@ class PageForm(forms.ModelForm):
 
         # Validating duplicated slug
         if pages.count() > 0:
-            raise forms.ValidationError('Another page with slug "%s" already exists for this site.'%slug, field_name='slug')
+            raise forms.ValidationError('Another page with slug "%s" already exists for this site.' % slug,
+                    field_name='slug')
+
+        if 'is_home' in cleaned_data:
+            try:
+                home = all_pages.home('name')
+                home = (home, cleaned_data['name'])[home is None]
+            except:
+                home = None
+            if cleaned_data['name'] != home:
+                raise forms.ValidationError('Page "%s" is already marked as home.' % cleaned_data['name'],
+                        field_name='is_home')
 
         signals.page_form_clean.send(sender=self, cleaned_data=cleaned_data)
         return cleaned_data
@@ -40,9 +55,8 @@ class PageForm(forms.ModelForm):
         signals.page_form_post_save.send(sender=self, instance=obj)
         return obj
 
-    def default_context(self):
+    def default_context(self, *args, **kwargs):
         return {
             'object_verbose_name': self._meta.model._meta.verbose_name,
             'object_verbose_name_plural': self._meta.model._meta.verbose_name_plural
         }
-
