@@ -3,10 +3,6 @@ from pages.models import Page
 from pages import signals 
 from london.apps.admin.modules import BaseModuleForm
 
-from images import add_image_field_to_sender_form
-
-signals.page_form_initialize.connect(add_image_field_to_sender_form)
-
 __author__ = 'jpablo'
 
 class PageForm(BaseModuleForm):
@@ -15,11 +11,15 @@ class PageForm(BaseModuleForm):
         model = Page
         exclude = ('text',)
         readonly = ('last_update', 'text')
+        
+    def get_initial(self, initial=None):
+        initial = initial or super(PageForm, self).get_initial(initial)
+        signals.page_form_initialize.send(sender=self, initial=initial)
+        return initial
 
     def initialize(self):
         self.fields['keywords'].widget = forms.ListByCommasTextInput()
         self.fields['slug'].required = False
-        signals.page_form_initialize.send(sender=self)
 
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
@@ -36,7 +36,7 @@ class PageForm(BaseModuleForm):
             raise forms.ValidationError('Another page with slug "%s" already exists for this site.' % slug,
                     field_name='slug')
 
-        if cleaned_data['is_home']:
+        if 'is_home' in cleaned_data:
             try:
                 home = all_pages.home('name')
                 home = (home, cleaned_data['name'])[home is None]
@@ -60,4 +60,3 @@ class PageForm(BaseModuleForm):
             'object_verbose_name': self._meta.model._meta.verbose_name,
             'object_verbose_name_plural': self._meta.model._meta.verbose_name_plural
         }
-
