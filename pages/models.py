@@ -7,6 +7,12 @@ from london.urls import reverse
 from datetime import datetime
 
 try:
+    from images.render import ImagesRender
+    image_compiler = ImagesRender()
+except ImportError:
+    image_compiler = None
+
+try:
     import markdown2
 except ImportError:
     markdown2 = None
@@ -63,6 +69,7 @@ class Page(models.Model):
         self['last_update'] = datetime.now()
 
         source = self.get('source',  None)
+        source = image_compiler.render(source) or source
         if self['markup'] == self.RENDER_TYPE_MARKDOWN:
             self['text'] = markdown2.markdown(source or '')
         else:
