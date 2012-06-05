@@ -1,8 +1,0 @@
-.*.swp
-*.pyc
-*.egg-info
-.DS_Store
-.idea
-.tmp*
-build/
-dist/
