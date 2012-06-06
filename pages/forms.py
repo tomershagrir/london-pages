@@ -36,7 +36,7 @@ class PageForm(BaseModuleForm):
             raise forms.ValidationError('Another page with slug "%s" already exists for this site.' % slug,
                     field_name='slug')
 
-        if 'is_home' in cleaned_data:
+        if 'is_home' in cleaned_data and cleaned_data['is_home']:
             try:
                 home = all_pages.home('name')
                 home = (home, cleaned_data['name'])[home is None]
