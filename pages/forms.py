@@ -1,7 +1,11 @@
 from london import forms
+from london.apps.admin.modules import BaseModuleForm
+from london.apps.admin.app_settings import CURRENT_SITE_FILTER
+from london.apps.sites.models import Site
+
 from pages.models import Page
 from pages import signals 
-from london.apps.admin.modules import BaseModuleForm
+
 
 __author__ = 'jpablo'
 
@@ -24,7 +28,9 @@ class PageForm(BaseModuleForm):
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
         slug = cleaned_data['slug']
-        all_pages = self.request.site['pages']
+        
+        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
+        all_pages = site['pages']
         pages = all_pages.filter(slug=slug)
 
         # Validation excludes current page
