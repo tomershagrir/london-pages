@@ -1,7 +1,5 @@
 from london import forms
 from london.apps.admin.modules import BaseModuleForm
-from london.apps.admin.app_settings import CURRENT_SITE_FILTER
-from london.apps.sites.models import Site
 
 from pages.models import Page
 from pages import signals 
@@ -13,7 +11,7 @@ class PageForm(BaseModuleForm):
 
     class Meta:
         model = Page
-        exclude = ('text', 'site')
+        exclude = ('text')
         readonly = ('last_update', 'text')
         
     def get_initial(self, initial=None):
@@ -29,8 +27,8 @@ class PageForm(BaseModuleForm):
         cleaned_data = super(PageForm, self).clean()
         slug = cleaned_data['slug']
         
-        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
-        all_pages = site['pages']
+#        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
+        all_pages = cleaned_data['site']['pages']
         pages = all_pages.filter(slug=slug)
 
         # Validation excludes current page
