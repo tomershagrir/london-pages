@@ -9,7 +9,7 @@ class PageForm(BaseModuleForm):
 
     class Meta:
         model = Page
-        exclude = ('text',)
+        exclude = ('text', 'site')
         readonly = ('last_update', 'text')
         
     def get_initial(self, initial=None):
@@ -24,7 +24,7 @@ class PageForm(BaseModuleForm):
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
         slug = cleaned_data['slug']
-        all_pages = cleaned_data['site']['pages']
+        all_pages = self.request.site['pages']
         pages = all_pages.filter(slug=slug)
 
         # Validation excludes current page
