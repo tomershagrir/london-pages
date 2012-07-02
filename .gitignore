@@ -4,8 +4,6 @@
 .DS_Store
 .idea
 .tmp*
-build/
-dist/
 .project
 .pydevproject
 .settings/
