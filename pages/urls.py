@@ -4,7 +4,8 @@ from london.urls.defining import patterns
 from pages.models import Page
 
 url_patterns = patterns('pages.views',
-        (r'^(?P<slug>[\w-]+)/$', 'view', {}, "page_view"),
+#        (r'^(?P<slug>[\w-]+)/$', 'view', {}, "page_view"),
+        (r'^$', 'view', {}, "page_view"),
 )
 
 if Page.query().filter(is_home=True):
