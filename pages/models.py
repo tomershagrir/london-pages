@@ -11,6 +11,12 @@ try:
     image_compiler = ImagesRender()
 except ImportError:
     image_compiler = None
+    
+try:
+    from london.apps.collections.render import CollectionsRender
+    collection_compiler = CollectionsRender()
+except ImportError:
+    collection_compiler = None
 
 try:
     import markdown2
@@ -70,6 +76,7 @@ class Page(models.Model):
 
         source = self.get('source',  None)
         source = image_compiler.render(source) or source
+        source = collection_compiler.render(source) or source
         if self['markup'] == self.RENDER_TYPE_MARKDOWN:
             self['text'] = markdown2.markdown(source or '')
         else:
