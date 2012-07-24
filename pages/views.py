@@ -22,6 +22,8 @@ def _return_view(request, slug, template):
     if collection_compiler:
         page['text'] = collection_compiler.render(getattr(request, 'theme', None), page['text'])
     
+    if request.breadcrumbs:
+        request.breadcrumbs(((unicode(page), False),))
     return render_to_response(request, template, {'page': page})
 
 def view(request, slug, template="page_view"):
