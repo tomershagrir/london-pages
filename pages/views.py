@@ -8,6 +8,12 @@ try:
     collection_compiler = CollectionsRender()
 except ImportError:
     collection_compiler = None
+    
+try:
+    from londonforms.render import FormsRender
+    form_compiler = FormsRender()
+except ImportError:
+    form_compiler = None
 
 from pages.models import Page
 
@@ -21,6 +27,9 @@ def _return_view(request, slug, template):
     
     if collection_compiler:
         page['text'] = collection_compiler.render(getattr(request, 'theme', None), page['text'])
+        
+    if form_compiler:
+        page['text'] = form_compiler.render(request, page['text'])
     
     if request.breadcrumbs:
         request.breadcrumbs(((unicode(page), False),))
