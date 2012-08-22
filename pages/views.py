@@ -32,7 +32,7 @@ def _return_view(request, slug, template):
         page['text'] = form_compiler.render(request, page['text'])
     
     if request.breadcrumbs:
-        request.breadcrumbs(((unicode(page), False),))
+        request.breadcrumbs(((unicode(page), page.get_url()),))
     return render_to_response(request, template, {'page': page})
 
 def view(request, slug, template="page_view"):
