@@ -26,7 +26,7 @@ def _return_view(request, slug, template):
     template = page['template_name'] or template
     
     if collection_compiler:
-        page['text'] = collection_compiler.render(getattr(request, 'theme', None), page['text'])
+        page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), page['text'])
         
     if form_compiler:
         page['text'] = form_compiler.render(request, page['text'])
