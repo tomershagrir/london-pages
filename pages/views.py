@@ -22,7 +22,7 @@ def _return_view(request, slug, template):
     if not getattr(request, 'site', None):
         raise Http404
 
-    page = get_object_or_404(request.site['pages'], slug=slug)
+    page = get_object_or_404(request.site['pages'], slug=slug, is_published=True)
     template = page['template_name'] or template
     
     if collection_compiler:
@@ -37,7 +37,7 @@ def _return_view(request, slug, template):
 
 def view(request, slug, template="page_view"):
     try:
-        if slug == Page.query().filter(is_home=True).get()['slug']:
+        if slug == Page.query().filter(is_home=True, is_published=True).get()['slug']:
             return redirect_to(request, '/')
     except:
         pass
