@@ -37,7 +37,7 @@ def _return_view(request, slug, template):
 
 def view(request, slug, template="page_view"):
     try:
-        if slug == Page.query().filter(is_home=True, is_published=True).get()['slug']:
+        if slug == Page.query().published().filter(is_home=True).get()['slug']:
             return redirect_to(request, '/')
     except:
         pass
@@ -45,5 +45,5 @@ def view(request, slug, template="page_view"):
     return _return_view(request, slug, template)
 
 def view_home(request, template="page_view"):
-    slug = Page.query().filter(is_home=True).get()['slug']
+    slug = Page.query().published().filter(is_home=True).get()['slug']
     return _return_view(request, slug, template)
