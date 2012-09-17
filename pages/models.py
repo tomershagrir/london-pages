@@ -89,4 +89,5 @@ class Page(models.Model):
         return reverse("page_view", kwargs={'slug': self['slug']})
 
     def get_content(self):
-        return mark_safe(self['text'])
+        regex = re.compile("\{(COLLECTION|ALL|FORM):(.*?)\}")
+        return mark_safe(regex.sub('', self['text']))
