@@ -1,3 +1,5 @@
+import re
+
 from london.db import models
 from london.utils.slugs import slugify
 from london.apps.sites.models import Site
