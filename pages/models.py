@@ -58,6 +58,7 @@ class Page(models.Model):
     keywords = models.ListField(null=True, blank=True)
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
     is_home = models.BooleanField(default=False, blank=True)
+    parent_page = models.ForeignKey("self", blank=True, related_name='other_pages')
 
     def __unicode__(self):
         return self['name']

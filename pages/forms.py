@@ -1,5 +1,7 @@
 from london import forms
 from london.apps.admin.modules import BaseModuleForm
+from london.apps.sites.models import Site
+from london.apps.admin.app_settings import CURRENT_SITE_FILTER
 
 from pages.models import Page
 from pages import signals 
@@ -16,6 +18,14 @@ class PageForm(BaseModuleForm):
         
     def get_initial(self, initial=None):
         initial = initial or super(PageForm, self).get_initial(initial)
+        
+        if self.instance['pk']: #exclude self page from the list of similar ones
+            page_query = Page.query()
+            if self.request.session[CURRENT_SITE_FILTER] != '':
+                site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
+                page_query = page_query.filter(site=site)
+            self.fields['parent_page'].queryset = page_query.exclude(pk = self.instance['pk'])
+        
         signals.page_form_initialize.send(sender=self, initial=initial)
         return initial
 

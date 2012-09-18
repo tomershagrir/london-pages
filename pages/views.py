@@ -32,7 +32,14 @@ def _return_view(request, slug, template):
         page['text'] = form_compiler.render(request, page['text'])
     
     if request.breadcrumbs:
-        request.breadcrumbs(((unicode(page), page.get_url()),))
+        parent_page = page['parent_page']
+        breadcrumbs = []
+        while parent_page:
+            breadcrumbs.append((parent_page.get_title(), parent_page.get_url()))
+            parent_page = parent_page['parent_page']
+        breadcrumbs.reverse()
+        breadcrumbs.append((page.get_title(), page.get_url()))
+        request.breadcrumbs(breadcrumbs)
     return render_to_response(request, template, {'page': page})
 
 def view(request, slug, template="page_view"):
