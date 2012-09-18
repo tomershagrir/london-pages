@@ -24,7 +24,7 @@ class PageForm(BaseModuleForm):
             if self.request.session[CURRENT_SITE_FILTER] != '':
                 site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
                 page_query = page_query.filter(site=site)
-            self.fields['parent_page'].queryset = page_query.exclude(pk = self.instance['pk'])
+            self.fields['parent_page'].queryset = page_query.exclude(pk = self.instance['pk']).order_by('name')
         
         signals.page_form_initialize.send(sender=self, initial=initial)
         return initial
