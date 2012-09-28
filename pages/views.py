@@ -29,7 +29,7 @@ def _return_view(request, slug, template):
         page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), page['text'])
         
     if form_compiler:
-        page['text'] = form_compiler.render(request, page['text'])
+        redirect_url, page['text'] = form_compiler.render(request, page['text'])
     
     if request.breadcrumbs:
         parent_page = page['parent_page']
@@ -40,7 +40,10 @@ def _return_view(request, slug, template):
         breadcrumbs.reverse()
         breadcrumbs.append((page.get_title(), page.get_url()))
         request.breadcrumbs(breadcrumbs)
-    return render_to_response(request, template, {'page': page})
+    if redirect_url:
+        return redirect_to(request, redirect_url)
+    else:
+        return render_to_response(request, template, {'page': page})
 
 def view(request, slug, template="page_view"):
     try:
