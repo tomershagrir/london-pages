@@ -30,6 +30,8 @@ def _return_view(request, slug, template):
         
     if form_compiler:
         redirect_url, page['text'] = form_compiler.render(request, page['text'])
+    else:
+        redirect_url = None
     
     if request.breadcrumbs:
         parent_page = page['parent_page']
