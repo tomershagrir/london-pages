@@ -19,13 +19,15 @@ class PageForm(BaseModuleForm):
     def get_initial(self, initial=None):
         initial = initial or super(PageForm, self).get_initial(initial)
         
-        if self.instance['pk']: #exclude self page from the list of similar ones
-            page_query = Page.query()
-            if self.request.session[CURRENT_SITE_FILTER] != '':
-                site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
-                page_query = page_query.filter(site=site)
-            self.fields['parent_page'].queryset = page_query.exclude(pk = self.instance['pk']).order_by('name')
+        page_query = Page.query()
+        if self.request.session[CURRENT_SITE_FILTER] != '':
+            site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
+            page_query = page_query.filter(site=site)
         
+        if self.instance['pk']: #exclude self page from the list of similar ones
+            page_query = page_query.exclude(pk = self.instance['pk']).order_by('name')
+
+        self.fields['parent_page'].queryset = page_query
         signals.page_form_initialize.send(sender=self, initial=initial)
         return initial
 
