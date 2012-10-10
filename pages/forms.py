@@ -2,6 +2,7 @@ from london import forms
 from london.apps.admin.modules import BaseModuleForm
 from london.apps.sites.models import Site
 from london.apps.admin.app_settings import CURRENT_SITE_FILTER
+from london.utils.slugs import slugify
 
 from pages.models import Page
 from pages import signals 
@@ -37,7 +38,7 @@ class PageForm(BaseModuleForm):
 
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
-        slug = cleaned_data['slug']
+        slug = cleaned_data['slug'] or slugify(cleaned_data['name'])
         
 #        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
         all_pages = cleaned_data['site']['pages']

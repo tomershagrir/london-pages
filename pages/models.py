@@ -1,19 +1,12 @@
 import re
 
 from london.db import models
-from london.utils.slugs import slugify
 from london.apps.sites.models import Site
 from london.utils.safestring import mark_safe
 from london.urls import reverse
 
 from datetime import datetime
 
-try:
-    from images.render import ImagesRender
-    image_compiler = ImagesRender()
-except ImportError:
-    image_compiler = None
-    
 try:
     import markdown2
 except ImportError:
@@ -35,7 +28,7 @@ class Page(models.Model):
 
     class Meta:
         query = 'pages.models.PageQuerySet'
-        ordering = ('position', )
+#        ordering = ('position', )
 
     RENDER_TYPE_RAW = 'raw'
     RENDER_TYPE_MARKDOWN = 'markdown'
@@ -47,8 +40,8 @@ class Page(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, blank=True, null=False)
     title = models.CharField(max_length=255)
-    position = models.SmallIntegerField(blank=True, null=False,
-            help_text='Menu position (for ranking of menu items)')
+#    position = models.SmallIntegerField(blank=True, null=False,
+#            help_text='Menu position (for ranking of menu items)')
     text = models.TextField()
     source = models.TextField()
     last_update = models.DateTimeField(blank=False, null=False)
@@ -64,20 +57,14 @@ class Page(models.Model):
         return self['name']
 
     def save(self, **kwargs):
-        # TODO: slug field should be unique with site/blog
-        # default values for slug and date
-        if not self.get('slug', False):
-            self['slug'] = slugify(self['name'])
-
         self['last_update'] = datetime.now()
 
         source = self.get('source',  None)
-        source = image_compiler.render(source) or source
-#        source = collection_compiler.render(source) or source
         if self['markup'] == self.RENDER_TYPE_MARKDOWN:
             self['text'] = markdown2.markdown(source or '')
         else:
             self['text'] = source or ''
+        
         return super(Page, self).save(**kwargs)
 
     def get_name(self):
@@ -92,5 +79,5 @@ class Page(models.Model):
         return reverse("page_view", kwargs={'slug': self['slug']})
 
     def get_content(self):
-        regex = re.compile("\{(COLLECTION|ALL|FORM):(.*?)\}")
+        regex = re.compile("\{(IMAGE|COLLECTION|ALL|FORM):(.*?)\}")
         return mark_safe(regex.sub('', self['text']))

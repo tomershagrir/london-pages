@@ -4,11 +4,15 @@ from london.templates import render_to_response
 from london.apps.ajax.tags import redirect_to
 from london.http import Http404
 try:
+    from images.render import ImagesRender
+    image_compiler = ImagesRender()
+except ImportError:
+    image_compiler = None
+try:
     from london.apps.collections.render import CollectionsRender
     collection_compiler = CollectionsRender()
 except ImportError:
     collection_compiler = None
-    
 try:
     from londonforms.render import FormsRender
     form_compiler = FormsRender()
@@ -24,6 +28,9 @@ def _return_view(request, slug, template):
 
     page = get_object_or_404(request.site['pages'], slug=slug, is_published=True)
     template = page['template_name'] or template
+    
+    if image_compiler:
+        page['text'] = image_compiler.render(page['text'])
     
     if collection_compiler:
         page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), page['text'])
