@@ -26,7 +26,11 @@ def _return_view(request, slug, template):
     if not getattr(request, 'site', None):
         raise Http404
 
-    page = get_object_or_404(request.site['pages'], slug=slug, is_published=True)
+    try:
+        page = get_object_or_404(request.site['pages'], real_slug=slug, is_published=True)
+    except Http404:
+        page = get_object_or_404(request.site['pages'], slug=slug, real_slug=None, is_published=True)
+    
     template = page['template_name'] or template
     
     if image_compiler:
@@ -56,7 +60,8 @@ def _return_view(request, slug, template):
 
 def view(request, slug, template="page_view"):
     try:
-        if slug == Page.query().published().filter(is_home=True).get()['slug']:
+#        if slug == Page.query().published().filter(is_home=True).get()['slug']:
+        if slug == Page.query().published().filter(is_home=True).get().get_url():
             return redirect_to(request, '/')
     except:
         pass
@@ -64,5 +69,6 @@ def view(request, slug, template="page_view"):
     return _return_view(request, slug, template)
 
 def view_home(request, template="page_view"):
-    slug = Page.query().published().filter(is_home=True).get()['slug']
+#    slug = Page.query().published().filter(is_home=True).get()['slug']
+    slug = Page.query().published().filter(is_home=True).get().get_url()
     return _return_view(request, slug, template)

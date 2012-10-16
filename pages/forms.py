@@ -14,7 +14,7 @@ class PageForm(BaseModuleForm):
 
     class Meta:
         model = Page
-        exclude = ('text',)
+        exclude = ('text','real_slug')
         readonly = ('last_update', 'text')
         
     def get_initial(self, initial=None):

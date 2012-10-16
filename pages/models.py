@@ -38,7 +38,8 @@ class Page(models.Model):
             )
 
     name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, blank=True, null=False)
+    slug = models.SlugField(max_length=255, blank=True, null=False, allow_slashes=True)
+    real_slug = models.SlugField(max_length=255, blank=True, null=False, allow_slashes=True)
     title = models.CharField(max_length=255)
 #    position = models.SmallIntegerField(blank=True, null=False,
 #            help_text='Menu position (for ranking of menu items)')
@@ -52,18 +53,21 @@ class Page(models.Model):
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
     is_home = models.BooleanField(default=False, blank=True)
     parent_page = models.ForeignKey("self", blank=True, related_name='other_pages')
-
+    use_parent_page_in_url = models.BooleanField(default=False, blank=True, verbose_name="Show middle pages in url")
+    
     def __unicode__(self):
         return self['name']
 
     def save(self, **kwargs):
         self['last_update'] = datetime.now()
-
+        
         source = self.get('source',  None)
         if self['markup'] == self.RENDER_TYPE_MARKDOWN:
             self['text'] = markdown2.markdown(source or '')
         else:
             self['text'] = source or ''
+        
+        self['real_slug'] = self.get_url().strip('/')
         
         return super(Page, self).save(**kwargs)
 
@@ -76,8 +80,14 @@ class Page(models.Model):
     def get_url(self):
         if self['is_home']:
             return reverse("page_view_home")
-        return reverse("page_view", kwargs={'slug': self['slug']})
-
+        
+        parent = self['parent_page']
+        slug = self['slug']
+        while parent and self['use_parent_page_in_url']:
+            slug = "%s/%s" % (parent['slug'], slug)
+            parent = parent['parent_page']
+        return reverse("page_view", kwargs={'slug': slug})
+    
     def get_content(self):
         regex = re.compile("\{(IMAGE|COLLECTION|ALL|FORM):(.*?)\}")
         return mark_safe(regex.sub('', self['text']))
