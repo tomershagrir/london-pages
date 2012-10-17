@@ -73,7 +73,8 @@ class PageForm(BaseModuleForm):
         return obj
 
     def default_context(self, *args, **kwargs):
-        return {
-            'object_verbose_name': self._meta.model._meta.verbose_name,
-            'object_verbose_name_plural': self._meta.model._meta.verbose_name_plural
-        }
+        context = super(PageForm, self).default_context(*args, **kwargs)
+        
+        context['object_verbose_name'] = self._meta.model._meta.verbose_name
+        context['object_verbose_name_plural'] = self._meta.model._meta.verbose_name_plural
+        return context
