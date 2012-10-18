@@ -38,11 +38,11 @@ class PageForm(BaseModuleForm):
 
     def clean(self):
         cleaned_data = super(PageForm, self).clean()
-        slug = cleaned_data['slug'] or slugify(cleaned_data['name'])
+        cleaned_data['slug'] = cleaned_data['slug'] or slugify(cleaned_data['name'])
         
 #        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
         all_pages = cleaned_data['site']['pages']
-        pages = all_pages.filter(slug=slug)
+        pages = all_pages.filter(slug=cleaned_data['slug'])
 
         # Validation excludes current page
         if self.instance['pk']:
@@ -50,7 +50,7 @@ class PageForm(BaseModuleForm):
 
         # Validating duplicated slug
         if pages.count() > 0:
-            raise forms.ValidationError('Another page with slug "%s" already exists for this site.' % slug,
+            raise forms.ValidationError('Another page with slug "%s" already exists for this site.' % cleaned_data['slug'],
                     field_name='slug')
 
         if 'is_home' in cleaned_data and cleaned_data['is_home']:
