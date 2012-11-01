@@ -1,6 +1,6 @@
 # coding: utf-8
 from london.shortcuts import get_object_or_404
-from london.templates import render_to_response
+from london.templates import render_to_response, get_context
 from london.apps.ajax.tags import redirect_to
 from london.http import Http404
 try:
@@ -37,7 +37,7 @@ def _return_view(request, slug, template):
         page['text'] = image_compiler.render(page['text'])
     
     if collection_compiler:
-        page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), page['text'])
+        page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), get_context(request), page['text'])
         
     if form_compiler:
         redirect_url, page['text'] = form_compiler.render(request, page['text'])
