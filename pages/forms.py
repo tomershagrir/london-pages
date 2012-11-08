@@ -29,7 +29,7 @@ class PageForm(BaseModuleForm):
             page_query = page_query.exclude(pk = self.instance['pk']).order_by('name')
 
         self.fields['parent_page'].queryset = page_query
-        signals.page_form_initialize.send(sender=self, initial=initial)
+        signals.page_form_initialize.send(sender=self, initial=initial, publish_field_name='is_published')
         return initial
 
     def initialize(self):

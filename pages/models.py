@@ -70,6 +70,10 @@ class Page(models.Model):
         self['real_slug'] = self.get_url().strip('/')
         
         return super(Page, self).save(**kwargs)
+    
+    def publish(self):
+        self['is_published'] = True
+        self.save()
 
     def get_name(self):
         return self['name']
