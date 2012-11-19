@@ -2,6 +2,7 @@
 from london.shortcuts import get_object_or_404
 from london.templates import render_to_response, get_context
 from london.apps.ajax.tags import redirect_to
+from london.apps.collections.models import Collection
 from london.http import Http404
 try:
     from images.render import ImagesRender
@@ -18,18 +19,17 @@ try:
     form_compiler = FormsRender()
 except ImportError:
     form_compiler = None
+    
+try:
+    from routes import register_for_routes
+except ImportError:
+    def register_for_routes(view):
+        pass
 
 from pages.models import Page
 
 
-def _return_view(request, slug, template):
-    if not getattr(request, 'site', None):
-        raise Http404
-
-    try:
-        page = get_object_or_404(request.site['pages'], real_slug=slug, is_published=True)
-    except Http404:
-        page = get_object_or_404(request.site['pages'], slug=slug, real_slug=None, is_published=True)
+def _render_page(request, page, template):
     
     template = page['template_name'] or template
     
@@ -57,18 +57,44 @@ def _return_view(request, slug, template):
         return redirect_to(request, redirect_url)
     else:
         return render_to_response(request, template, {'page': page})
+    
+def _get_page_by_slug(request, slug):
+    try:
+        page = get_object_or_404(request.site['pages'], real_slug=slug, is_published=True)
+    except Http404:
+        page = get_object_or_404(request.site['pages'], slug=slug, real_slug=None, is_published=True)
+    return page
 
 def view(request, slug, template="page_view"):
     try:
-#        if slug == Page.query().published().filter(is_home=True).get()['slug']:
         if slug == Page.query().published().filter(is_home=True).get().get_url():
             return redirect_to(request, '/')
     except:
         pass
+    
+    if not getattr(request, 'site', None):
+        raise Http404
+    
+    page = _get_page_by_slug(request, slug)
+    
+    # don't show page if it belongs to collection
+    collections = Collection.query().filter(site=request.site, items__contains=page['pk'])
+    if collections.count():
+        raise Http404
+    return _render_page(request, page, template)
 
-    return _return_view(request, slug, template)
+@register_for_routes('pages.views.category_view')
+def category_view(request, slug, template="page_view", **kwargs):
+    collections = Collection.query().filter(site=request.site)
+    pages = Page.query().published()
+    if 'slug1' in kwargs:
+        items = []
+        for item in collections.filter(slug=kwargs['slug1']):
+            items.extend(item['items'])
+        pages = pages.filter(site=request.site, pk__in=items)
+    page = get_object_or_404(pages, slug=slug)
+    return _render_page(request, page, template)
 
 def view_home(request, template="page_view"):
-#    slug = Page.query().published().filter(is_home=True).get()['slug']
     slug = Page.query().published().filter(is_home=True).get().get_url()
-    return _return_view(request, slug, template)
+    return _render_page(request, _get_page_by_slug(request, slug), template)
