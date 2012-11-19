@@ -2,6 +2,7 @@ import re
 
 from london.db import models
 from london.apps.sites.models import Site
+from london.apps.collections.models import Collection
 from london.utils.safestring import mark_safe
 from london.urls import reverse
 
@@ -80,17 +81,28 @@ class Page(models.Model):
 
     def get_title(self):
         return self['title']
-
+    
     def get_url(self):
-        if self['is_home']:
-            return reverse("page_view_home")
-        
-        parent = self['parent_page']
-        slug = self['slug']
-        while parent and self['use_parent_page_in_url']:
-            slug = "%s/%s" % (parent['slug'], slug)
-            parent = parent['parent_page']
-        return reverse("page_view", kwargs={'slug': slug})
+        kwargs = {}
+        collections = Collection.query().filter(site=self['site'], items__contains=str(self['pk']))
+        if collections.count():
+            kwargs = collections[0].get_slugs() # TODO: what to do if page belongs to more than 1 collection?
+        kwargs['slug'] = self['slug']
+        try: 
+            return reverse("pages_views_view", kwargs=kwargs)
+        except:
+            return self['slug']
+
+#    def get_url(self):
+#        if self['is_home']:
+#            return reverse("page_view_home")
+#        
+#        parent = self['parent_page']
+#        slug = self['slug']
+#        while parent and self['use_parent_page_in_url']:
+#            slug = "%s/%s" % (parent['slug'], slug)
+#            parent = parent['parent_page']
+#        return reverse("page_view", kwargs={'slug': slug})
     
     def get_content(self):
         regex = re.compile("\{(IMAGE|COLLECTION|ALL|FORM):(.*?)\}")

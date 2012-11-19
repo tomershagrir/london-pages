@@ -1,0 +1,11 @@
+{% base "pages/base.html" %}
+
+{% piece "content" %}
+{% for page in pages %}
+	<div>
+		<a href="{{ page.get_url() }}">{{ page.get_title() }}</a>
+	</div>
+	<br style="clear: both" />
+{% endfor %}
+{% endpiece %}
+

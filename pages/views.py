@@ -65,6 +65,26 @@ def _get_page_by_slug(request, slug):
         page = get_object_or_404(request.site['pages'], slug=slug, real_slug=None, is_published=True)
     return page
 
+@register_for_routes('pages.views.list')
+def list(request, template='page_list', **kwargs):
+    site = getattr(request, 'site', None)
+    
+    pages = Page.query()
+    if site:
+        pages = site['pages']
+    
+    collections = Collection.query()
+    if 'slug2' in kwargs:
+        items = []
+        for item in Collection.query().filter(site=site, slug=kwargs['slug2']):
+            items.extend(item['items'])
+        collections = collections.filter(pk__in=items)
+    if 'slug1' in kwargs:
+        collection = get_object_or_404(collections, slug=kwargs['slug1'])
+        pages = pages.filter(pk__in=collection['items'])
+        
+    return render_to_response(request, template, {'pages':pages})
+
 def view(request, slug, template="page_view"):
     try:
         if slug == Page.query().published().filter(is_home=True).get().get_url():
