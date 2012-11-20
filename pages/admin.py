@@ -9,7 +9,7 @@ class ModulePage(admin.CrudModule):
     readonly_fields = ('last_update', 'text')
     exclude = ('text','real_slug')
     form = PageForm
-    search_fields = ("name",)
+    search_fields = ('name','slug')
 
 class AppBlog(admin.AdminApplication):
     title = 'Page'
