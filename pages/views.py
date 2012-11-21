@@ -39,7 +39,10 @@ def _render_page(request, page, template):
         page['text'] = image_compiler.render(page['text'])
     
     if collection_compiler:
-        page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), get_context(request), page['text'])
+        try:
+            page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), get_context(request), page['text'])
+        except TypeError:
+            page['text'] = collection_compiler.render(site=request.site, theme=getattr(request, 'theme', None), source=page['text'])
         
     if form_compiler:
         redirect_url, page['text'] = form_compiler.render(request, page['text'])
