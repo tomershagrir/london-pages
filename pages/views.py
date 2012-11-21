@@ -23,8 +23,10 @@ except ImportError:
 try:
     from routes import register_for_routes
 except ImportError:
-    def register_for_routes(view):
-        pass
+    def register_for_routes(path):
+        def _inner(view):
+            return view
+        return _inner
 
 from pages.models import Page
 
