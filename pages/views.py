@@ -23,8 +23,10 @@ except ImportError:
 try:
     from routes import register_for_routes
 except ImportError:
-    def register_for_routes(view):
-        pass
+    def register_for_routes(path):
+        def _inner(view):
+            return view
+        return _inner
 
 from pages.models import Page
 
@@ -37,7 +39,10 @@ def _render_page(request, page, template):
         page['text'] = image_compiler.render(page['text'])
     
     if collection_compiler:
-        page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), get_context(request), page['text'])
+        try:
+            page['text'] = collection_compiler.render(request.site, getattr(request, 'theme', None), get_context(request), page['text'])
+        except TypeError:
+            page['text'] = collection_compiler.render(site=request.site, theme=getattr(request, 'theme', None), source=page['text'])
         
     if form_compiler:
         redirect_url, page['text'] = form_compiler.render(request, page['text'])
