@@ -48,6 +48,10 @@ def _render_page(request, page, template):
         redirect_url, page['text'] = form_compiler.render(request, page['text'])
     else:
         redirect_url = None
+        
+    breadcrumbs = []
+    breadcrumbs.append((page.get_title(), page.get_url()))
+    request.breadcrumbs(breadcrumbs)
     
 #    if request.breadcrumbs:
 #        parent_page = page['parent_page']
@@ -122,7 +126,6 @@ def category_view(request, slug, template="page_view", **kwargs):
             breadcrumbs.append((category['title'] or category['name'], category.get_url()))
         pages = pages.filter(site=request.site, pk__in=items)
     page = get_object_or_404(pages, slug=slug)
-    breadcrumbs.append((page.get_title(), page.get_url()))
     request.breadcrumbs(breadcrumbs)
     return _render_page(request, page, template)
 
