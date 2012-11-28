@@ -49,15 +49,15 @@ def _render_page(request, page, template):
     else:
         redirect_url = None
     
-    if request.breadcrumbs:
-        parent_page = page['parent_page']
-        breadcrumbs = []
-        while parent_page:
-            breadcrumbs.append((parent_page.get_title(), parent_page.get_url()))
-            parent_page = parent_page['parent_page']
-        breadcrumbs.reverse()
-        breadcrumbs.append((page.get_title(), page.get_url()))
-        request.breadcrumbs(breadcrumbs)
+#    if request.breadcrumbs:
+#        parent_page = page['parent_page']
+#        breadcrumbs = []
+#        while parent_page:
+#            breadcrumbs.append((parent_page.get_title(), parent_page.get_url()))
+#            parent_page = parent_page['parent_page']
+#        breadcrumbs.reverse()
+#        breadcrumbs.append((page.get_title(), page.get_url()))
+#        request.breadcrumbs(breadcrumbs)
     if redirect_url:
         return redirect_to(request, redirect_url)
     else:
@@ -112,12 +112,18 @@ def view(request, slug, template="page_view"):
 def category_view(request, slug, template="page_view", **kwargs):
     collections = Collection.query().filter(site=request.site)
     pages = Page.query().published()
+    breadcrumbs = []
     if 'slug1' in kwargs:
         items = []
         for item in collections.filter(slug=kwargs['slug1']):
+            category = item
             items.extend(item['items'])
+        if category:
+            breadcrumbs.append((category['title'] or category['name'], category.get_url()))
         pages = pages.filter(site=request.site, pk__in=items)
     page = get_object_or_404(pages, slug=slug)
+    breadcrumbs.append((page.get_title(), page.get_url()))
+    request.breadcrumbs(breadcrumbs)
     return _render_page(request, page, template)
 
 def view_home(request, template="page_view"):

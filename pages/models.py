@@ -53,8 +53,8 @@ class Page(models.Model):
     keywords = models.ListField(null=True, blank=True)
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
     is_home = models.BooleanField(default=False, blank=True)
-    parent_page = models.ForeignKey("self", blank=True, related_name='other_pages')
-    use_parent_page_in_url = models.BooleanField(default=False, blank=True, verbose_name="Show middle pages in url")
+#    parent_page = models.ForeignKey("self", blank=True, related_name='other_pages')
+#    use_parent_page_in_url = models.BooleanField(default=False, blank=True, verbose_name="Show middle pages in url")
     
     def __unicode__(self):
         return self['name']
@@ -88,10 +88,10 @@ class Page(models.Model):
         if collections.count():
             kwargs = collections[0].get_slugs() # TODO: what to do if page belongs to more than 1 collection?
         kwargs['slug'] = self['slug']
-        try: 
-            return reverse("pages_views_view", kwargs=kwargs)
+        try:
+            return reverse('pages_views_category_view', kwargs=kwargs)
         except:
-            return self['slug']
+            return '/%s/' % self['slug']
 
 #    def get_url(self):
 #        if self['is_home']:
