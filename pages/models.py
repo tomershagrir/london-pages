@@ -29,7 +29,7 @@ class Page(models.Model):
 
     class Meta:
         query = 'pages.models.PageQuerySet'
-#        ordering = ('position', )
+        ordering = ('-last_update', )
 
     RENDER_TYPE_RAW = 'raw'
     RENDER_TYPE_MARKDOWN = 'markdown'
