@@ -119,6 +119,7 @@ def category_view(request, slug, template="page_view", **kwargs):
     breadcrumbs = []
     if 'slug1' in kwargs:
         items = []
+        category = None
         for item in collections.filter(slug=kwargs['slug1']):
             category = item
             items.extend(item['items'])
