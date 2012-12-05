@@ -1,11 +1,8 @@
 from london import forms
 from london.apps.admin.modules import BaseModuleForm
-from london.apps.sites.models import Site
-from london.apps.admin.app_settings import CURRENT_SITE_FILTER
 from london.utils.slugs import slugify
-
+from pages import signals
 from pages.models import Page
-from pages import signals 
 
 
 __author__ = 'jpablo'
@@ -20,15 +17,14 @@ class PageForm(BaseModuleForm):
     def get_initial(self, initial=None):
         initial = initial or super(PageForm, self).get_initial(initial)
         
-        page_query = Page.query()
-        if self.request.session[CURRENT_SITE_FILTER] != '':
-            site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
-            page_query = page_query.filter(site=site)
+        # Filter author users if user hasn't permissions to view them all
+        if not self.request.user.has_perm('auth.edit_user', self.request.site):
+            self.fields['author'].queryset = self.fields['author'].queryset(self).filter(pk = self.request.user['pk'])
         
-        if self.instance['pk']: #exclude self page from the list of similar ones
-            page_query = page_query.exclude(pk = self.instance['pk']).order_by('name')
+        if not self.instance['pk']:
+            # setting initial author for new page
+            initial['author'] = str(self.request.user['pk'])
 
-#        self.fields['parent_page'].queryset = page_query
         signals.page_form_initialize.send(sender=self, initial=initial, publish_field_name='is_published')
         return initial
 
@@ -40,7 +36,6 @@ class PageForm(BaseModuleForm):
         cleaned_data = super(PageForm, self).clean()
         cleaned_data['slug'] = cleaned_data['slug'] or slugify(cleaned_data['name'])
         
-#        site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
         all_pages = cleaned_data['site']['pages']
         pages = all_pages.filter(slug=cleaned_data['slug'])
 
