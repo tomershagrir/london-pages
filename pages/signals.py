@@ -23,6 +23,10 @@ page_form_post_save = Signal()
 page_form_post_save.connect(save_meta_info_from_sender_form)
 page_form_post_save.connect(save_collections_from_sender_form)
 page_form_clean = Signal()
+page_model_save = Signal()
+page_get_name = Signal()
+page_get_title = Signal()
+page_get_content = Signal()
 
 if add_forms_to_page_form:
     page_form_initialize.connect(add_forms_to_page_form)

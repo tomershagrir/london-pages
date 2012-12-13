@@ -1,4 +1,9 @@
 import re
+from datetime import datetime
+try:
+    import markdown2
+except ImportError:
+    markdown2 = None
 
 from london.db import models
 from london.apps.sites.models import Site
@@ -6,12 +11,7 @@ from london.apps.collections.models import Collection
 from london.utils.safestring import mark_safe
 from london.urls import reverse
 
-from datetime import datetime
-
-try:
-    import markdown2
-except ImportError:
-    markdown2 = None
+from signals import page_model_save, page_get_name, page_get_title, page_get_content
 
 
 class PageQuerySet(models.QuerySet):
@@ -59,16 +59,18 @@ class Page(models.Model):
     
     def __unicode__(self):
         return self['name']
+    
+    def _save_text_from_source(self, source_field_name, text_field_name):
+        source = self.get(source_field_name,  None)
+        if self['markup'] == self.RENDER_TYPE_MARKDOWN:
+            self[text_field_name] = markdown2.markdown(source or '')
+        else:
+            self[text_field_name] = source or ''
 
     def save(self, **kwargs):
         self['last_update'] = datetime.now()
-        
-        source = self.get('source',  None)
-        if self['markup'] == self.RENDER_TYPE_MARKDOWN:
-            self['text'] = markdown2.markdown(source or '')
-        else:
-            self['text'] = source or ''
-        
+        self._save_text_from_source('source', 'text')
+        page_model_save.send(instance=self)
         self['real_slug'] = self.get_url().strip('/')
         
         return super(Page, self).save(**kwargs)
@@ -77,11 +79,21 @@ class Page(models.Model):
         self['is_published'] = True
         self.save()
 
-    def get_name(self):
-        return self['name']
+    def get_name(self, lang='default'):
+        name = page_get_name.send(instance=self, lang=lang)
+        if not len(name) or not name[0]:
+            name = self['name'] 
+        else:
+            name = name[0] 
+        return name
 
-    def get_title(self):
-        return self['title']
+    def get_title(self, lang='default'):
+        title = page_get_title.send(instance=self, lang=lang)
+        if not len(title) or not title[0]:
+            title = self['title'] 
+        else:
+            title = title[0] 
+        return title 
     
     def get_url(self):
         kwargs = {}
@@ -105,6 +117,11 @@ class Page(models.Model):
 #            parent = parent['parent_page']
 #        return reverse("page_view", kwargs={'slug': slug})
     
-    def get_content(self):
+    def get_content(self, lang='default'):
         regex = re.compile("\{(IMAGE|COLLECTION|ALL|FORM):(.*?)\}")
-        return mark_safe(regex.sub('', self['text']))
+        content = page_get_content.send(instance=self, lang=lang, regex=regex)
+        if not len(content) or not content[0]:
+            content = mark_safe(regex.sub('', self['text']))
+        else:
+            content = content[0] 
+        return content
