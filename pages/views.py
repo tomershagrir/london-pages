@@ -106,10 +106,10 @@ def view(request, slug, template="page_view"):
     
     page = _get_page_by_slug(request, slug)
     
-    # don't show page if it belongs to collection
-#    collections = Collection.query().filter(site=request.site, items__contains=page['pk'])
-#    if collections.count():
-#        raise Http404
+#     don't show page if it belongs to collection
+    collections = Collection.query().filter(site=request.site, items__contains=page['pk'])
+    if collections.count():
+        raise Http404
     return _render_page(request, page, template)
 
 @register_for_routes('pages.views.category_view')

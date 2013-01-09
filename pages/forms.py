@@ -65,6 +65,8 @@ class PageForm(BaseModuleForm):
         signals.page_form_pre_save.send(sender=self, instance=self.instance)
         obj = super(PageForm, self).save(commit, force_new)
         signals.page_form_post_save.send(sender=self, instance=obj)
+        obj['real_slug'] = obj.get_url().strip('/')
+        obj.save()
         return obj
 
     def default_context(self, *args, **kwargs):

@@ -71,7 +71,6 @@ class Page(models.Model):
         self['last_update'] = datetime.now()
         self._save_text_from_source('source', 'text')
         page_model_save.send(instance=self)
-        self['real_slug'] = self.get_url().strip('/')
         
         return super(Page, self).save(**kwargs)
     
