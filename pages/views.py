@@ -94,7 +94,8 @@ def list(request, template='page_list', **kwargs):
         
     return render_to_response(request, template, {'pages':pages})
 
-def view(request, slug, template="page_view"):
+@register_for_routes('pages.views.view')
+def view(request, slug, template="page_view", **kwargs):
     try:
         if slug == Page.query().published().filter(is_home=True).get().get_url():
             return redirect_to(request, '/')
@@ -129,6 +130,10 @@ def category_view(request, slug, template="page_view", **kwargs):
     page = get_object_or_404(pages, slug=slug)
     request.breadcrumbs(breadcrumbs)
     return _render_page(request, page, template)
+
+@register_for_routes('pages.views.view_404')
+def view_404(request, **kwargs):
+    raise Http404
 
 def view_home(request, template="page_view"):
     slug = Page.query().published().filter(is_home=True).get().get_url()
