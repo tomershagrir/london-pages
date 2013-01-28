@@ -100,8 +100,14 @@ class Page(models.Model):
         if collections.count():
             kwargs = collections[0].get_slugs() # TODO: what to do if page belongs to more than 1 collection?
         kwargs['slug'] = self['slug']
+        
         try:
-            return reverse('pages_views_category_view', kwargs=kwargs)
+            from routes import dynamic_url_patterns
+        except ImportError:
+            dynamic_url_patterns = []
+        
+        try:
+            return reverse('pages_views_category_view', kwargs=kwargs, dynamic_url_patterns=dynamic_url_patterns)
         except:
             return '/%s/' % self['slug']
 
