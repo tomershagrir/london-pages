@@ -16,7 +16,7 @@ from signals import page_model_save, page_get_name, page_get_title, page_get_con
 
 class PageQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(is_published=True)
+        return self.filter(is_published=True).order_by('name')
 
     def home(self, field='slug'):
         try:
