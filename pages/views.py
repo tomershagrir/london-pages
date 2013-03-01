@@ -68,10 +68,7 @@ def _render_page(request, page, template):
         return render_to_response(request, template, {'page': page})
     
 def _get_page_by_slug(request, slug):
-    try:
-        page = get_object_or_404(request.site['pages'], real_slug=slug, is_published=True)
-    except Http404:
-        page = get_object_or_404(request.site['pages'], slug=slug, real_slug=None, is_published=True)
+    page = get_object_or_404(request.site['pages'], slug=slug, is_published=True)
     return page
 
 @register_for_routes('pages.views.list')
@@ -107,7 +104,7 @@ def view(request, slug, template="page_view", **kwargs):
     
     page = _get_page_by_slug(request, slug)
     
-#     don't show page if it belongs to collection with a slug
+#    don't show page if it belongs to collection with a slug
     collections = Collection.query().filter(site=request.site, slug__notequal='', items__contains=page['pk'])
     if collections.count():
         raise Http404

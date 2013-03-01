@@ -41,7 +41,7 @@ class Page(models.Model):
     name = models.CharField(max_length=255)
     author = models.ForeignKey('auth.User', blank=False, null=False, related_name='pages')
     slug = models.SlugField(max_length=255, blank=True, null=False, allow_slashes=True)
-    real_slug = models.SlugField(max_length=255, blank=True, null=False, allow_slashes=True)
+#    real_slug = models.SlugField(max_length=255, blank=True, null=False, allow_slashes=True)
     title = models.CharField(max_length=255)
 #    position = models.SmallIntegerField(blank=True, null=False,
 #            help_text='Menu position (for ranking of menu items)')

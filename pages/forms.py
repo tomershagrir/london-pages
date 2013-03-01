@@ -11,7 +11,7 @@ class PageForm(BaseModuleForm):
 
     class Meta:
         model = Page
-        exclude = ('text','real_slug')
+        exclude = ('text',)
         readonly = ('last_update', 'text')
         
     def get_initial(self, initial=None):
@@ -65,7 +65,7 @@ class PageForm(BaseModuleForm):
         signals.page_form_pre_save.send(sender=self, instance=self.instance)
         obj = super(PageForm, self).save(commit, force_new)
         signals.page_form_post_save.send(sender=self, instance=obj)
-        obj['real_slug'] = obj.get_url().strip('/')
+#        obj['real_slug'] = obj.get_url().strip('/')
         obj.save()
         return obj
 

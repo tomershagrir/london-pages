@@ -7,7 +7,7 @@ class ModulePage(admin.CrudModule):
     model = Page
     list_display = ('slug', 'last_update', 'name', 'is_home')
     readonly_fields = ('last_update', 'text')
-    exclude = ('text','real_slug')
+    exclude = ('text',)
     form = PageForm
     search_fields = ('name','slug')
 
