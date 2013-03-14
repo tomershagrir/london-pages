@@ -103,11 +103,12 @@ class Page(models.Model):
         
         try:
             from routes import dynamic_url_patterns
+            url_patterns = dynamic_url_patterns[self['site']['name']] if self['site']['name'] in dynamic_url_patterns else []
         except ImportError:
-            dynamic_url_patterns = []
+            url_patterns = []
         
         try:
-            return reverse('pages_views_category_view', kwargs=kwargs, dynamic_url_patterns=dynamic_url_patterns)
+            return reverse('pages_views_category_view', kwargs=kwargs, dynamic_url_patterns=url_patterns)
         except:
             return '/%s/' % self['slug']
 
