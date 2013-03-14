@@ -54,7 +54,7 @@ class Page(models.Model):
     keywords = models.ListField(null=True, blank=True)
     is_published = models.BooleanField(default=True, db_index=True, blank=True)
     is_home = models.BooleanField(default=False, blank=True)
-#    parent_page = models.ForeignKey("self", blank=True, related_name='other_pages')
+    parent_page = models.ForeignKey("self", blank=True, default=None, related_name="children_pages")
 #    use_parent_page_in_url = models.BooleanField(default=False, blank=True, verbose_name="Show middle pages in url")
     
     def __unicode__(self):
@@ -77,6 +77,9 @@ class Page(models.Model):
     def publish(self):
         self['is_published'] = True
         self.save()
+
+    def get_children(self):
+        return Page.query().filter(parent_page=self)
 
     def get_name(self, lang='default'):
         name = page_get_name.send(instance=self, lang=lang)
