@@ -1,6 +1,7 @@
 from london import forms
 from london.apps.admin.modules import BaseModuleForm
 from london.utils.slugs import slugify
+from london.apps.sites.models import Site
 from london.apps.admin.app_settings import CURRENT_SITE_FILTER
 
 from pages import signals
