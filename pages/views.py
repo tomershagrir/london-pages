@@ -49,19 +49,15 @@ def _render_page(request, page, template):
     else:
         redirect_url = None
         
+    parent_page = page['parent_page']
     breadcrumbs = []
+    while parent_page:
+        breadcrumbs.append((parent_page.get_title(), parent_page.get_url()))
+        parent_page = parent_page['parent_page']
+    breadcrumbs.reverse()
     breadcrumbs.append((page.get_title(), page.get_url()))
     request.breadcrumbs(breadcrumbs)
     
-#    if request.breadcrumbs:
-#        parent_page = page['parent_page']
-#        breadcrumbs = []
-#        while parent_page:
-#            breadcrumbs.append((parent_page.get_title(), parent_page.get_url()))
-#            parent_page = parent_page['parent_page']
-#        breadcrumbs.reverse()
-#        breadcrumbs.append((page.get_title(), page.get_url()))
-#        request.breadcrumbs(breadcrumbs)
     if redirect_url:
         return redirect_to(request, redirect_url)
     else:

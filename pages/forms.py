@@ -21,10 +21,18 @@ class PageForm(BaseModuleForm):
         if not self.request.user.has_perm('auth.edit_user', self.request.site):
             self.fields['author'].queryset = self.fields['author'].queryset(self).filter(pk = self.request.user['pk'])
         
-        if not self.instance['pk']:
+        page_query = Page.query()
+        if self.request.session[CURRENT_SITE_FILTER] != '':
+            site = Site.query().get(pk = self.request.session[CURRENT_SITE_FILTER])
+            page_query = page_query.filter(site=site)
+        
+        if self.instance['pk']:
+            #exclude self page from the list of similar ones
+            page_query = page_query.exclude(pk = self.instance['pk']).order_by('name')
+        else:
             # setting initial author for new page
             initial['author'] = str(self.request.user['pk'])
-
+            
         signals.page_form_initialize.send(sender=self, initial=initial, publish_field_name='is_published')
         return initial
 
