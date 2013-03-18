@@ -35,7 +35,8 @@ class PageForm(BaseModuleForm):
         else:
             # setting initial author for new page
             initial['author'] = str(self.request.user['pk'])
-            
+        
+        self.fields['parent_page'].queryset = page_query    
         signals.page_form_initialize.send(sender=self, initial=initial, publish_field_name='is_published')
         return initial
 
