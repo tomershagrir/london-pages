@@ -129,5 +129,5 @@ def view_404(request, **kwargs):
     raise Http404
 
 def view_home(request, template="page_view"):
-    slug = Page.query().published().filter(is_home=True).get().get_url()
-    return _render_page(request, _get_page_by_slug(request, slug), template)
+    page = Page.query().published().filter(is_home=True).get()
+    return _render_page(request, page, page['template_name'] or template)
